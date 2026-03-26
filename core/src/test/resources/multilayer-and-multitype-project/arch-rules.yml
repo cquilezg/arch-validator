@@ -1,0 +1,49 @@
+layers:
+  domain:
+    location: com.example.domain
+  application:
+    location: com.example.application
+  infrastructure:
+    location: com.example.infrastructure
+
+types:
+  - name: Repository
+    patterns: ["*Repository"]
+    layer: application
+  - name: UseCase
+    patterns: ["*UseCase"]
+    layer: application
+  - name: Adapter
+    patterns: ["*Adapter"]
+    layer: infrastructure
+  - name: Entity
+    patterns: []
+    layer: domain
+
+rules:
+  - title: "Domain layer imports"
+    layers: [domain]
+    allowed:
+      imports:
+        - java.*
+        - javax.*
+        - com.example.domain.*
+
+  - title: "Application layer imports"
+    layers: [application]
+    allowed:
+      imports:
+        - java.*
+        - javax.*
+        - com.example.domain.*
+        - com.example.application.*
+
+  - title: "Infrastructure layer imports"
+    layers: [infrastructure]
+    allowed:
+      imports:
+        - java.*
+        - javax.*
+        - com.example.domain.*
+        - com.example.application.*
+        - com.example.infrastructure.*
