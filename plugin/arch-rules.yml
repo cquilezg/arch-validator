@@ -1,0 +1,16 @@
+layers:
+  infrastructure:
+    location: com.cquilez.arch.infrastructure
+
+types:
+  - name: Adapter
+    patterns: ["*Adapter"]
+    layers: infrastructure
+  - name: Mojo
+    patterns: ["*Mojo"]
+    layers: infrastructure
+
+rules:
+  - title: Classes should have less than 300 lines
+    allowed:
+      max-lines: 300

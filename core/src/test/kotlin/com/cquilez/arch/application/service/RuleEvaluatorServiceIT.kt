@@ -7,6 +7,7 @@ import com.cquilez.arch.domain.Allowed
 import com.cquilez.arch.domain.Layer
 import com.cquilez.arch.domain.ProjectRules
 import com.cquilez.arch.domain.Rule
+import com.cquilez.arch.infrastructure.adapter.KotlinPsiSourceParser
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
@@ -56,13 +57,14 @@ class RuleEvaluatorServiceIT {
             rules = listOf(rule)
         )
 
+        val kotlinParser = KotlinPsiSourceParser()
         val evaluator = RuleEvaluatorService(
             log,
             filesystem,
             LayerFinderService(),
             PatternMatcherService(),
             RuleValidationExecutor(PatternMatcherService(), LayerFinderService()),
-            SourceParserService(log, filesystem)
+            SourceParserService(log, filesystem, kotlinParser)
         )
         val analysis = evaluator.evaluateRules(
             sourceRoots = listOf(tempDir.toString()),
@@ -94,13 +96,14 @@ class RuleEvaluatorServiceIT {
             rules = listOf(rule)
         )
 
+        val kotlinParser = KotlinPsiSourceParser()
         val evaluator = RuleEvaluatorService(
             log,
             filesystem,
             LayerFinderService(),
             PatternMatcherService(),
             RuleValidationExecutor(PatternMatcherService(), LayerFinderService()),
-            SourceParserService(log, filesystem)
+            SourceParserService(log, filesystem, kotlinParser)
         )
         val analysis = evaluator.evaluateRules(
             sourceRoots = listOf(tempDir.toString()),

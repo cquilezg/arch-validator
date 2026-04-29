@@ -1,0 +1,58 @@
+layers:
+  domain:
+    location: com.cquilez.arch.domain
+  application:
+    location: com.cquilez.arch.application
+  infrastructure:
+    location: com.cquilez.arch.infrastructure
+
+types:
+  - name: Adapter
+    patterns: ["*Adapter"]
+    layers: infrastructure
+  - name: Port
+    patterns: ["*Port"]
+    layers: application
+  - name: Service
+    patterns: ["*Service"]
+    layers: application
+  - name: UseCase
+    patterns: ["*UseCase"]
+    layers: application
+  - name: Controller
+    patterns: ["*Controller"]
+    layers: infrastructure
+
+rules:
+  - title: Domain should only use Java, Lombok and domain classes
+    layers: domain
+    allowed:
+      imports:
+        - java.*
+        - org.lombok.*
+        - com.cquilez.arch.domain.*
+  - title: Application should only use Java, Lombok, domain and application classes
+    layers: application
+    allowed:
+      layers: [ domain, application ]
+  - title: Domain & application layers cannot have adapters
+    layers: [ domain, application ]
+    forbidden:
+      classes: [ "*Adapter" ]
+  - title: Domain & infrastructure layers cannot have ports or use cases
+    layers: [ domain, infrastructure ]
+    forbidden:
+      classes: [ "*Port", "*UseCase" ] # case-insensitive by default
+  - title: Use cases should only have a single public method
+    classes: [ "*UseCase" ]
+    allowed:
+      methods:
+        public: 1
+  - title: Use cases cannot use UseCase types
+    types: [ UseCase ]
+    forbidden:
+      types: [ UseCase ]
+  - title: Classes should have less than 300 lines
+    allowed:
+      max-lines: 300
+

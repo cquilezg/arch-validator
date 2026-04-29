@@ -10,6 +10,7 @@ import com.cquilez.arch.application.service.rule.RuleValidationExecutor
 import com.cquilez.arch.domain.AnalysisConfig
 import com.cquilez.arch.domain.Project
 import com.cquilez.arch.infrastructure.adapter.FilesystemAdapter
+import com.cquilez.arch.infrastructure.adapter.KotlinPsiSourceParser
 import com.cquilez.arch.infrastructure.adapter.LogAdapter
 import com.cquilez.arch.infrastructure.adapter.YamlParserAdapter
 import org.apache.maven.plugin.AbstractMojo
@@ -86,7 +87,8 @@ class ValidatorMojo : AbstractMojo() {
         val ruleValidatorService = RuleValidatorService(filesystemAdapter)
         val layerFinderService = LayerFinderService()
         val patternMatcherService = PatternMatcherService()
-        val sourceParserService = SourceParserService(logAdapter, filesystemAdapter)
+        val kotlinPsiSourceParser = KotlinPsiSourceParser()
+        val sourceParserService = SourceParserService(logAdapter, filesystemAdapter, kotlinPsiSourceParser)
         val ruleValidationExecutor = RuleValidationExecutor(patternMatcherService, layerFinderService)
         val ruleEvaluatorService =
             RuleEvaluatorService(logAdapter, filesystemAdapter, layerFinderService, patternMatcherService, ruleValidationExecutor, sourceParserService)

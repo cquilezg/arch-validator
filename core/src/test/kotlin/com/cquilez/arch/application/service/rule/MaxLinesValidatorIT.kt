@@ -5,6 +5,8 @@ import com.cquilez.arch.application.port.LogPort
 import com.cquilez.arch.application.service.LayerFinderService
 import com.cquilez.arch.application.service.PatternMatcherService
 import com.cquilez.arch.application.service.SourceParserService
+import com.cquilez.arch.infrastructure.adapter.KotlinPsiSourceParser
+import com.cquilez.arch.application.service.rule.RuleValidationExecutor
 import com.cquilez.arch.domain.Allowed
 import com.cquilez.arch.domain.Rule
 import io.mockk.mockk
@@ -27,7 +29,8 @@ class MaxLinesValidatorIT {
     }
     private val patternMatcher = PatternMatcherService()
     private val layerFinder = LayerFinderService()
-    private val sourceParser = SourceParserService(log, filesystem)
+    private val kotlinParser = KotlinPsiSourceParser()
+    private val sourceParser = SourceParserService(log, filesystem, kotlinParser)
     private val executor = RuleValidationExecutor(patternMatcher, layerFinder)
 
     @Test

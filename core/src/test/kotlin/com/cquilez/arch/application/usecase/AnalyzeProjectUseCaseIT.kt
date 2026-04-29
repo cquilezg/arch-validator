@@ -1,10 +1,12 @@
 package com.cquilez.arch.application.usecase
 
 import com.cquilez.arch.application.port.FilesystemPort
+import com.cquilez.arch.application.port.KotlinSourceParserPort
 import com.cquilez.arch.application.port.LogPort
 import com.cquilez.arch.application.port.ParserPort
 import com.cquilez.arch.application.service.RuleEvaluatorService
 import com.cquilez.arch.application.service.RuleValidatorService
+import com.cquilez.arch.application.service.SourceParserService
 import com.cquilez.arch.application.service.rule.RuleValidationExecutor
 import com.cquilez.arch.domain.AnalysisConfig
 import com.cquilez.arch.domain.Project
@@ -51,6 +53,11 @@ class AnalyzeProjectUseCaseIT {
     }
 
     private fun createUseCase(): AnalyzeProjectUseCase {
+        val kotlinParser = object : KotlinSourceParserPort {
+            override fun parse(content: String): SourceParserService.ParsedSource {
+                return SourceParserService.ParsedSource(null, listOf(), mapOf(), listOf(), mapOf(), listOf(), 0)
+            }
+        }
         return AnalyzeProjectUseCase(
             log = log,
             filesystem = filesystem,
@@ -65,7 +72,7 @@ class AnalyzeProjectUseCaseIT {
                     com.cquilez.arch.application.service.PatternMatcherService(),
                     com.cquilez.arch.application.service.LayerFinderService()
                 ),
-                com.cquilez.arch.application.service.SourceParserService(log, filesystem)
+                com.cquilez.arch.application.service.SourceParserService(log, filesystem, kotlinParser)
             )
         )
     }
