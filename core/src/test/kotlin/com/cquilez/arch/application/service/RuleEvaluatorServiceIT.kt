@@ -8,9 +8,10 @@ import com.cquilez.arch.domain.Layer
 import com.cquilez.arch.domain.ProjectRules
 import com.cquilez.arch.domain.Rule
 import com.cquilez.arch.infrastructure.adapter.KotlinPsiSourceParser
+import com.cquilez.arch.application.service.SourceParserService
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -74,12 +75,18 @@ class RuleEvaluatorServiceIT {
         assertEquals(0, analysis.totalViolations())
     }
 
-    @Disabled
     @Test
     fun detectsMaxLinesViolation() {
         val tempDir = Files.createTempDirectory("arch-test-maxlines")
         val file = tempDir.resolve("LargeFile.java")
-        val content = (1..350).joinToString("\n") { "line $it" }
+        // Create a valid Java file with 352 lines (350 comment lines + package + class declaration + closing brace)
+        val content = """
+            |package com.example;
+            |
+            |public class LargeFile {
+            |    ${(1..348).joinToString("\n") { "    // line $it" }}
+            |}
+            |""".trimMargin()
         Files.writeString(file, content)
 
         val rule = Rule(
@@ -97,13 +104,14 @@ class RuleEvaluatorServiceIT {
         )
 
         val kotlinParser = KotlinPsiSourceParser()
+        val sourceParser = SourceParserService(log, filesystem, kotlinParser)
         val evaluator = RuleEvaluatorService(
             log,
             filesystem,
             LayerFinderService(),
             PatternMatcherService(),
             RuleValidationExecutor(PatternMatcherService(), LayerFinderService()),
-            SourceParserService(log, filesystem, kotlinParser)
+            sourceParser
         )
         val analysis = evaluator.evaluateRules(
             sourceRoots = listOf(tempDir.toString()),
@@ -111,6 +119,6 @@ class RuleEvaluatorServiceIT {
         )
 
         assertEquals(1, analysis.totalViolations())
-        assertEquals("File has too many lines: 350 (max: 300)", analysis.violations[rule]!![0].cause)
+        assertTrue(analysis.violations[rule]!![0].cause.contains("File has too many lines: 352 (max: 300)"))
     }
 }

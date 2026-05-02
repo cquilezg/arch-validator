@@ -286,3 +286,9 @@ Kover requires `kover:instrumentation` bound to `process-test-classes` phase in 
 - Do not leave commented-out code blocks (existing ones should be cleaned up over time).
 - Do not exceed 300 lines per class.
 - Do not access fields or methods without `this.` qualifier inside a class body.
+
+---
+
+## Git Practices
+
+- **NEVER commit changes unless the user explicitly asks for it**. Wait for the user to request a commit before using `git commit`. This applies to all agents and sub-agents working in this repository.

@@ -53,11 +53,7 @@ class AnalyzeProjectUseCaseIT {
     }
 
     private fun createUseCase(): AnalyzeProjectUseCase {
-        val kotlinParser = object : KotlinSourceParserPort {
-            override fun parse(content: String): SourceParserService.ParsedSource {
-                return SourceParserService.ParsedSource(null, listOf(), mapOf(), listOf(), mapOf(), listOf(), 0)
-            }
-        }
+        val kotlinParser = com.cquilez.arch.infrastructure.adapter.KotlinPsiSourceParser()
         return AnalyzeProjectUseCase(
             log = log,
             filesystem = filesystem,
@@ -359,5 +355,146 @@ class AnalyzeProjectUseCaseIT {
 
         assertEquals(0, capturedLogs.count { it.contains("Unrecognized key") },
             "Expected no warnings for known keys")
+    }
+
+    @Test
+    fun `execute detects violations when layer rules are broken`() {
+        val resourcesDir = Path.of("src/test/resources").resolve("violation-project")
+        val rulesFile = resourcesDir.resolve("arch-rules.yml")
+        val projectDir = resourcesDir.resolve("src/main/java")
+        val projectInfo = Project(
+            compileSourceRoots = listOf(projectDir.toString()),
+            testCompileSourceRoots = emptyList()
+        )
+
+        capturedLogs.clear()
+        val useCase = createUseCase()
+
+        try {
+            useCase.execute(projectInfo, rulesFile, AnalysisConfig())
+        } catch (e: Exception) {
+            // Expected if violations cause failure
+        }
+
+        // Check that violations were detected
+        val violationsLog = capturedLogs.filter { it.contains("Total VIOLATIONS:") }
+        assertTrue(violationsLog.isNotEmpty(), "Expected violations to be detected")
+        assertTrue(capturedLogs.any { it.contains("Rules evaluation failed") },
+            "Expected 'Rules evaluation failed' message")
+
+        // Verify that specific violation is detected
+        assertTrue(capturedLogs.any { it.contains("domain") && it.contains("Order") },
+            "Expected violation for Order class in domain layer")
+    }
+
+    @Test
+    fun `execute handles malformed YAML`(@TempDir tempDir: Path) {
+        val rulesContent = """
+            |layers:
+            |  domain:
+            |    location: com.example.domain
+            |  invalid yaml here: {
+            |    nested: [
+            |rules:
+            |  - title: "Test rule"
+            |    layers: [domain]
+            |    allowed:
+            |      imports:
+            |        - java.*
+            |""".trimMargin()
+
+        val rulesFile = tempDir.resolve("arch-rules.yml")
+        Files.writeString(rulesFile, rulesContent)
+
+        val projectDir = tempDir.resolve("src/main/java")
+        Files.createDirectories(projectDir.resolve("com/example/domain"))
+        val projectInfo = Project(
+            compileSourceRoots = listOf(projectDir.toString()),
+            testCompileSourceRoots = emptyList()
+        )
+
+        capturedLogs.clear()
+        val useCase = createUseCase()
+
+        try {
+            useCase.execute(projectInfo, rulesFile, AnalysisConfig())
+        } catch (e: IllegalStateException) {
+            // Expected - malformed YAML should cause exception
+        }
+
+        // Should not have successfully analyzed
+        assertTrue(capturedLogs.none { it.contains("Project analysis successful!") },
+            "Should not succeed with malformed YAML")
+    }
+
+    @Test
+    fun `execute fails when failIfNoRules is true and no rules file`(@TempDir tempDir: Path) {
+        val projectDir = tempDir.resolve("src/main/java")
+        Files.createDirectories(projectDir.resolve("com/example/domain"))
+
+        // Don't create arch-rules.yml file
+        val rulesFile = tempDir.resolve("arch-rules.yml")
+        val projectInfo = Project(
+            compileSourceRoots = listOf(projectDir.toString()),
+            testCompileSourceRoots = emptyList()
+        )
+
+        capturedLogs.clear()
+        val useCase = createUseCase()
+
+        var exceptionThrown = false
+        try {
+            useCase.execute(projectInfo, rulesFile, AnalysisConfig(failIfNoRules = true))
+        } catch (e: IllegalStateException) {
+            exceptionThrown = true
+            assertTrue(e.message?.contains("No rules found") == true,
+                "Expected 'No rules found' message, got: ${e.message}")
+        }
+
+        assertTrue(exceptionThrown, "Expected IllegalStateException when failIfNoRules=true and no rules file")
+    }
+
+    @Test
+    fun `execute handles duplicate rule titles`(@TempDir tempDir: Path) {
+        val rulesContent = """
+            |layers:
+            |  domain:
+            |    location: com.example.domain
+            |rules:
+            |  - title: "Duplicate Rule"
+            |    layers: [domain]
+            |    allowed:
+            |      imports:
+            |        - java.*
+            |  - title: "Duplicate Rule"
+            |    layers: [domain]
+            |    allowed:
+            |      imports:
+            |        - java.*
+            |""".trimMargin()
+
+        val rulesFile = tempDir.resolve("arch-rules.yml")
+        Files.writeString(rulesFile, rulesContent)
+
+        val projectDir = tempDir.resolve("src/main/java")
+        Files.createDirectories(projectDir.resolve("com/example/domain"))
+        val projectInfo = Project(
+            compileSourceRoots = listOf(projectDir.toString()),
+            testCompileSourceRoots = emptyList()
+        )
+
+        capturedLogs.clear()
+        val useCase = createUseCase()
+
+        var exceptionThrown = false
+        try {
+            useCase.execute(projectInfo, rulesFile, AnalysisConfig())
+        } catch (e: IllegalStateException) {
+            exceptionThrown = true
+            assertTrue(e.message?.contains("Duplicate rule titles") == true,
+                "Expected 'Duplicate rule titles' message, got: ${e.message}")
+        }
+
+        assertTrue(exceptionThrown, "Expected IllegalStateException for duplicate rule titles")
     }
 }

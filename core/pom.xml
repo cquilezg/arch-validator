@@ -11,6 +11,9 @@
 
     <artifactId>core</artifactId>
 
+    <name>arch-validator-core</name>
+    <description>Core library for architecture rule validation (framework-independent)</description>
+
     <dependencies>
         <dependency>
             <groupId>com.github.javaparser</groupId>

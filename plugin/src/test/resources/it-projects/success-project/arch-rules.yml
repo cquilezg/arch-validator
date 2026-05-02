@@ -1,0 +1,19 @@
+layers:
+  domain:
+    location: com.example.domain
+  application:
+    location: com.example.application
+
+types:
+  - name: Domain
+    patterns: ["*"]
+    layer: domain
+  - name: Application
+    patterns: ["*UseCase"]
+    layer: application
+
+rules:
+  - title: Domain should not depend on application
+    layers: domain
+    forbidden:
+      layers: [ application ]

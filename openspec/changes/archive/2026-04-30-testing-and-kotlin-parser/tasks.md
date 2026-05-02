@@ -26,14 +26,14 @@
 - [x] 4.6 Create `YamlParserAdapterTest.kt` — valid YAML parsing, malformed YAML error handling. Stub `FilesystemPort`. **Verify**: tests green.
 
 ## Phase 5: Core Integration Tests
-
-- [ ] 5.1 Extend `AnalyzeProjectUseCaseIT.kt` with violation-detection scenario (AV-IT-02): fixture project with an import that breaks layer rules; assert non-empty violations list. **Verify**: `mvn verify -pl core -Dit.test=AnalyzeProjectUseCaseIT` green.
-- [ ] 5.2 Add error-path ITs: malformed YAML, `failIfNoRules=true` with no rules file, missing source file, duplicate class names (scenarios AV-IT-03 through AV-IT-05). **Verify**: same command green.
-- [ ] 5.3 Enable `@Disabled` on `RuleEvaluatorServiceIT.detectsMaxLinesViolation` and fix if needed. **Verify**: `mvn verify -pl core` — zero `@Disabled` tests.
+ 
+- [x] 5.1 Extend `AnalyzeProjectUseCaseIT.kt` with violation-detection scenario (AV-IT-02): fixture project with an import that breaks layer rules; assert non-empty violations list. **Verify**: `mvn verify -pl core -Dit.test=AnalyzeProjectUseCaseIT` green.
+- [x] 5.2 Add error-path ITs: malformed YAML, `failIfNoRules=true` with no rules file, missing source file, duplicate class names (scenarios AV-IT-03 through AV-IT-05). **Verify**: same command green.
+- [x] 5.3 Enable `@Disabled` on `RuleEvaluatorServiceIT.detectsMaxLinesViolation` and fix if needed. **Verify**: `mvn verify -pl core` — zero `@Disabled` tests.
 
 ## Phase 6: Plugin Integration Tests
 
-- [ ] 6.1 Add `maven-invoker-plugin` configuration to `plugin/pom.xml` bound to `integration-test`. **Verify**: `mvn verify -pl plugin` runs invoker phase without error.
-- [ ] 6.2 Create fixture `plugin/src/test/resources/it-projects/success-project/` with valid `arch-rules.yml` + minimal Kotlin source; add `invoker.properties`. **Verify**: invoker IT passes.
-- [ ] 6.3 Create fixture `it-projects/violation-project/` with an intentional layer violation; `invoker.properties` expects `BUILD FAILURE`. **Verify**: invoker IT passes.
-- [ ] 6.4 Create fixture `it-projects/fail-if-no-rules-project/` with no rules file and `<failIfNoRules>true</failIfNoRules>`; expects `BUILD FAILURE`. **Verify**: invoker IT passes.
+- [x] 6.1 Add `maven-invoker-plugin` configuration to `plugin/pom.xml` bound to `integration-test`. **Verify**: `mvn verify -pl plugin` runs invoker phase without error.
+- [x] 6.2 Create fixture `plugin/src/test/resources/it-projects/success-project/` with valid `arch-rules.yml` + minimal Kotlin source; add `invoker.properties`. **Verify**: invoker IT passes.
+- [x] 6.3 Create fixture `it-projects/violation-project/` with an intentional layer violation; `invoker.properties` expects `BUILD FAILURE`. **Verify**: invoker IT passes.
+- [x] 6.4 Create fixture `it-projects/fail-if-no-rules-project/` with no rules file and `<failIfNoRules>true</failIfNoRules>`; expects `BUILD FAILURE`. **Verify**: invoker IT passes.
