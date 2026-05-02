@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.cquilez</groupId>
         <artifactId>arch-project</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
 
     <artifactId>arch-plugin</artifactId>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.cquilez</groupId>
             <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -73,7 +73,7 @@
                 <plugin>
                     <groupId>com.cquilez</groupId>
                     <artifactId>arch-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <version>0.0.1</version>
                     <configuration>
                         <failIfNoRules>true</failIfNoRules>
                         <includeTests>false</includeTests>
